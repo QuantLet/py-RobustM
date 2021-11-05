@@ -3,9 +3,13 @@
 Please refer to [RobustM](https://github.com/QuantLet/RobustM) original library. This repository is just a version with
 main script in python.
 
+When citing this project, please cite the original paper from Härdle et al (2021), that you can find
+here: https://www.wiwi.hu-berlin.de/de/forschung/irtg/results/discussion-papers/discussion-papers-2017-1/irtg1792dp2021-018.pdf
+
 ## Installation
 
-- Refer to `setup.py`. This version has been tested with R==4.0.2 and python==3.7.11. It will probably work with python3.8 also.
+- Refer to `setup.py`. This version has been tested with R==4.0.2 and python==3.7.11. It will probably work with
+  python3.8 also.
 - First, you need to create a virtual environment, for example with conda: `conda create -n robustm python=3.7`
 - Then activate it with `conda activate robustm`
 - Install the package in your environment with: `pip install .`
@@ -15,7 +19,8 @@ main script in python.
 First fill the `config.json` file, you can specify:
 
 - `dataset` (str): "SP100" to reproduce RobustM on SP100 or "global_bond_dl_portfolio" to reproduce EmbeddingPortfolio
-- `strats` (list): Strategy to evaluate, available strategies are `["GMV", "GMV_long", "GMV_lin", "GMV_nlin", "GMV_robust"]`
+- `strats` (list): Strategy to evaluate, available strategies
+  are `["GMV", "GMV_long", "GMV_lin", "GMV_nlin", "GMV_robust"]`
 - `window` (Optional[int]): default is 252 (one year), past window for parameters estimation
 - `freq`(Optional[str]): rebalancing freq (should be 'MS', for month). This is not used if `rebalance_dates`is given
 - `verbose` (Optional[int]): verbosity, 0 by default
@@ -25,6 +30,7 @@ First fill the `config.json` file, you can specify:
 - `name` (Optional[str]): Name of run to save results, `None` by default
 
 Then just run `main.py` with `python main.py`. You can add command line argument specified in main.py:
+
 - `--save`: to save the results
 - `--backend`: specific backend
 - `--n_jobs`: number of parallel jobs
