@@ -1,6 +1,9 @@
 {
   "strats": [
     "GMV",
+    "GMV_long",
+    "GMV_lin",
+    "GMV_nlin",
     "GMV_robust"
   ],
   "window": 252,
