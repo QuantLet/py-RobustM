@@ -55,7 +55,7 @@ def allocate(returns: np.ndarray, strat: str, **kwargs: Dict):
     return w1
 
 
-def worker(returns: pd.DataFrame, date: str, window: int, strats: List, verbose: int = 0) -> Dict:
+def worker(returns: pd.DataFrame, date: str, window: int, strats: List, verbose: int = 0, **kwargs) -> Dict:
     """
 
     :param returns: dataframe of log returns
@@ -65,6 +65,9 @@ def worker(returns: pd.DataFrame, date: str, window: int, strats: List, verbose:
     :param verbose: print logs are not
     :return: Dictionary of strategy weights
     """
+    to_go = kwargs.get('to_go')
+    if to_go is not None:
+        LOGGER.info(f"Steps to go: {to_go}")
     if verbose > 0:
         LOGGER.info(f"Rebalancing at date {date}")
     past_returns = returns.loc[:date].iloc[:-1]  # remove last row which includes rb_date

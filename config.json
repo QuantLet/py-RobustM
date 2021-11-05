@@ -7,7 +7,5 @@
     "GMV_robust"
   ],
   "window": 252,
-  "freq": "MS",
-  "verbose": 1,
-  "start_test": "2020-01-01"
+  "freq": "MS"
 }

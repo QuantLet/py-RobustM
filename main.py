@@ -13,7 +13,7 @@ import pickle
 from joblib import Parallel, delayed
 from py_robustm.constants import SAVE_DIR
 import datetime as dt
-
+import time
 robjects.numpy2ri.activate()
 
 if __name__ == '__main__':
@@ -33,8 +33,9 @@ if __name__ == '__main__':
                         action="store_true",
                         help="Save the result")
     args = parser.parse_args()
+    LOGGER.info(f"Starting script with {args.n_jobs} jobs in parallel...")
     config = json.load(open('config.json'))
-
+    LOGGER.info(f"Config loaded")
     if args.save:
         if os.path.exists(SAVE_DIR):
             iter_ = len(os.listdir(SAVE_DIR))
@@ -61,7 +62,7 @@ if __name__ == '__main__':
     strats = config["strats"]
     window = config["window"]
     freq = config["freq"]
-    verbose = config["verbose"]
+    verbose = config.get("verbose", 0)
     rebalance_dates = config.get("rebalance_dates", None)
     start_test = config.get("start_test", None)
     end_date = config.get("end_date", None)
@@ -71,9 +72,9 @@ if __name__ == '__main__':
     prices.set_index('date', inplace=True)
     prices.index = pd.to_datetime(prices.index)
     prices = prices.astype(np.float32)
-    assets = list(prices.columns)
     LOGGER.info(f"\n{prices.head()}")
     LOGGER.info(f"Data shape: {prices.shape}")
+    assets = list(prices.columns)
     nans = np.array(assets)[(prices.isna().sum() != 0).values.tolist()]
     if len(nans) > 0:
         LOGGER.info(f"Assets with NaNs: {nans}\nFill nans by interpolation")
@@ -99,7 +100,9 @@ if __name__ == '__main__':
         [(d >= pd.to_datetime(start_test)) and (d <= pd.to_datetime(end_date)) for d in dates]].tolist()
     if rebalance_dates is None:
         rebalance_dates = [d.strftime("%Y-%m-%d") for d in pd.date_range(start=start_test, end=end_date, freq=freq)]
-
+    LOGGER.info(f"There are {len(rebalance_dates)} rebalancing periods")
+    LOGGER.info(f"Computing weights...")
+    t1 = time.time()
     if args.n_jobs == 1:
         port_weights = []
         for rb_date in rebalance_dates:
@@ -108,11 +111,13 @@ if __name__ == '__main__':
     elif args.n_jobs > 1:
         with Parallel(n_jobs=args.n_jobs, backend=args.backend) as _parallel_pool:
             port_weights = _parallel_pool(
-                delayed(worker)(returns, rb_date, window, strats, verbose=verbose)
-                for rb_date in rebalance_dates
+                delayed(worker)(returns, rb_date, window, strats, verbose=verbose, to_go=len(rebalance_dates) - i)
+                for i, rb_date in enumerate(rebalance_dates)
             )
     else:
         raise ValueError(args.n_jobs)
+    t2 = time.time()
+    LOGGER.info(f"Time to compute weights: {round((t2 - t1)/60, 2)} min.")
 
     port_weights = {strat: [r[strat] for r in port_weights] for strat in strats}
     for strat in port_weights:
