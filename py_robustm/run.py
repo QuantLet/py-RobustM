@@ -1,7 +1,9 @@
 from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
 import numpy as np
-from typing import Dict
+import pandas as pd
+from py_robustm.logger import LOGGER
+from typing import Dict, List
 import rpy2.robjects.numpy2ri
 import rpy2.rlike.container as rlc
 import py_robustm.markowitz as mrkw
@@ -51,3 +53,29 @@ def allocate(returns: np.ndarray, strat: str, **kwargs: Dict):
         raise NotImplementedError(f"Strat: '{strat}' is not implemented")
 
     return w1
+
+
+def worker(returns: pd.DataFrame, date: str, window: int, strats: List, verbose: int = 0) -> Dict:
+    """
+
+    :param returns: dataframe of log returns
+    :param date: rebalancing date
+    :param window: length of past window used for estimation
+    :param strats: list of portfolio allocation strategies
+    :param verbose: print logs are not
+    :return: Dictionary of strategy weights
+    """
+    if verbose > 0:
+        LOGGER.info(f"Rebalancing at date {date}")
+    past_returns = returns.loc[:date].iloc[:-1]  # remove last row which includes rb_date
+    past_returns = past_returns.iloc[-window:]  # take only sample of size window
+    if verbose > 0:
+        LOGGER.info(f"Using past returns from {past_returns.index[0]} to {past_returns.index[-1]}")
+    weights = {}
+    for strat in strats:
+        if verbose > 0:
+            LOGGER.info(f"Computing weights for allocation method: {strat} ")
+        w = allocate(past_returns.values, strat=strat)
+        weights[strat] = w
+
+    return weights
