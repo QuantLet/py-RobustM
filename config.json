@@ -1,11 +1,10 @@
 {
   "strats": [
     "GMV",
-    "GMV_long",
-    "GMV_lin",
-    "GMV_nlin",
     "GMV_robust"
   ],
   "window": 252,
-  "freq": "MS"
+  "freq": "MS",
+  "verbose": 1,
+  "start_test": "2020-01-01"
 }
