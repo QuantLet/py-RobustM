@@ -15,6 +15,38 @@ rp = importr('RiskPortfolios')
 nlshrink = importr('nlshrink')
 
 
+def load_data(dataset: str):
+    """
+    Load data
+    :param dataset: name of dataset
+    :return:
+    """
+    if dataset == "SP100":
+        prices = pd.read_csv("data/SP100_20100101_20201231.csv", sep=";")
+        prices.set_index('date', inplace=True)
+    elif dataset == "Russell3000":
+        prices = pd.read_csv("data/Russell3000prices_20000101_20201231.csv")
+        prices.set_index('date', inplace=True)
+    else:
+        raise NotImplementedError(dataset)
+    prices.index = pd.to_datetime(prices.index)
+    prices = prices.astype(np.float32)
+    LOGGER.info(f"\n{prices.head()}")
+    LOGGER.info(f"Data shape: {prices.shape}")
+    assets = list(prices.columns)
+    nans = np.array(assets)[(prices.isna().sum() != 0).values.tolist()]
+    if len(nans) > 0:
+        LOGGER.info(f"Assets with NaNs: {nans}\nFill nans by interpolation")
+        # Fillnans
+        prices = prices.interpolate(method='polynomial', order=2)
+    assert len(np.array(assets)[(prices.isna().sum() != 0).values.tolist()]) == 0
+    returns = np.log(prices.pct_change(1).dropna() + 1)
+    assert np.sum(returns.isna().sum()) == 0
+    prices = prices.loc[returns.index]
+
+    return prices, returns
+
+
 def allocate(returns: np.ndarray, strat: str, **kwargs: Dict):
     """
     General caller for portfolio allocation for all strats defined in AVAILABLE_STRATS

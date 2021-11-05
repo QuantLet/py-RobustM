@@ -7,5 +7,6 @@
     "GMV_robust"
   ],
   "window": 252,
-  "freq": "MS"
+  "freq": "MS",
+  "dataset": "SP100"
 }

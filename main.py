@@ -3,7 +3,7 @@ import rpy2.robjects as robjects
 R = robjects.r
 R.rm(list=R.ls(all=True))
 
-from py_robustm.run import worker
+from py_robustm.run import worker, load_data
 import pandas as pd
 import numpy as np
 from py_robustm.logger import LOGGER
@@ -59,6 +59,7 @@ if __name__ == '__main__':
     # hel = ret;
     # hel[] = 0
 
+    dataset = config["dataset"]
     strats = config["strats"]
     window = config["window"]
     freq = config["freq"]
@@ -68,23 +69,10 @@ if __name__ == '__main__':
     end_date = config.get("end_date", None)
 
     # Load data
-    prices = pd.read_csv("SP100_20100101_20201231.csv", sep=";")
-    prices.set_index('date', inplace=True)
-    prices.index = pd.to_datetime(prices.index)
-    prices = prices.astype(np.float32)
-    LOGGER.info(f"\n{prices.head()}")
-    LOGGER.info(f"Data shape: {prices.shape}")
+    LOGGER.info(f"Loading dataset: {dataset}")
+    prices, returns = load_data(dataset)
     assets = list(prices.columns)
-    nans = np.array(assets)[(prices.isna().sum() != 0).values.tolist()]
-    if len(nans) > 0:
-        LOGGER.info(f"Assets with NaNs: {nans}\nFill nans by interpolation")
-        # Fillnans
-        prices = prices.interpolate(method='polynomial', order=2)
-    assert len(np.array(assets)[(prices.isna().sum() != 0).values.tolist()]) == 0
-    returns = np.log(prices.pct_change(1).dropna() + 1)
-    assert np.sum(returns.isna().sum()) == 0
     dates = list(returns.index)
-    prices = prices.loc[dates]
 
     if start_test is None:
         start_test = dates[window]
@@ -111,7 +99,7 @@ if __name__ == '__main__':
     elif args.n_jobs > 1:
         with Parallel(n_jobs=args.n_jobs, backend=args.backend) as _parallel_pool:
             port_weights = _parallel_pool(
-                delayed(worker)(returns, rb_date, window, strats, verbose=verbose, to_go=len(rebalance_dates) - i)
+                delayed(worker)(returns, rb_date, window, strats, verbose=verbose, to_go=len(rebalance_dates) - i - 1)
                 for i, rb_date in enumerate(rebalance_dates)
             )
     else:

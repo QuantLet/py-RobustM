@@ -143,6 +143,7 @@ cython_debug/
 # Data
 *.csv
 *.RData
+data/
 
 # Results
 log/
