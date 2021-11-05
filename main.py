@@ -3,7 +3,7 @@ import rpy2.robjects as robjects
 R = robjects.r
 R.rm(list=R.ls(all=True))
 
-from py_robustm.run import worker, load_data, evaluate
+from py_robustm.py_robustm import worker, load_data, evaluate
 import pandas as pd
 import numpy as np
 from py_robustm.logger import LOGGER
