@@ -35,9 +35,9 @@ def load_data(dataset: str):
     LOGGER.info(f"Data shape: {prices.shape}")
     assets = list(prices.columns)
     nans = np.array(assets)[(prices.isna().sum() != 0).values.tolist()]
-    if len(nans) > 0:
-        LOGGER.info(f"Assets with NaNs: {nans}\nFill nans by interpolation")
-        # Fillnans
+    if len(nans) > 0:  # Fill nans
+        LOGGER.info(f"Assets with NaNs: {nans}")
+        LOGGER.info("Fill nans by interpolation")
         prices = prices.interpolate(method='polynomial', order=2)
     assert len(np.array(assets)[(prices.isna().sum() != 0).values.tolist()]) == 0
     returns = np.log(prices.pct_change(1).dropna() + 1)
