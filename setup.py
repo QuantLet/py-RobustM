@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="py_RobustM",
+    name="py_robustm",
     version="0.0.0",
     # url="",
     author="Bruno Spilak",
