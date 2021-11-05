@@ -3,8 +3,8 @@
 Please refer to [RobustM](https://github.com/QuantLet/RobustM) original library. This repository is just a version with
 main script in python.
 
-When citing this project, please cite the original paper from Härdle et al (2021), that you can find
-here: https://www.wiwi.hu-berlin.de/de/forschung/irtg/results/discussion-papers/discussion-papers-2017-1/irtg1792dp2021-018.pdf
+When citing this project, please cite the original paper
+from [Härdle et al (2021)](https://www.wiwi.hu-berlin.de/de/forschung/irtg/results/discussion-papers/discussion-papers-2017-1/irtg1792dp2021-018.pdf).
 
 ## Installation
 
@@ -15,11 +15,13 @@ here: https://www.wiwi.hu-berlin.de/de/forschung/irtg/results/discussion-papers/
 - Install the package in your environment with: `pip install .`
 
 ## Run
+
 ### Data
 
 Please contact me to get access to the data. Put the csv files in a `data` folder at the root.
 
 ### Configuration
+
 First fill the `config.json` file, you can specify:
 
 - `dataset` (str): "SP100" to reproduce RobustM on SP100 or "global_bond_dl_portfolio" to reproduce EmbeddingPortfolio
@@ -34,6 +36,7 @@ First fill the `config.json` file, you can specify:
 - `name` (Optional[str]): Name of run to save results, `None` by default
 
 ### Run
+
 Then just run `main.py` with `python main.py`. You can add command line argument specified in main.py:
 
 - `--save`: to save the results
