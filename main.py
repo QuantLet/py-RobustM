@@ -43,7 +43,10 @@ if __name__ == '__main__':
         else:
             os.mkdir(SAVE_DIR)
             iter_ = 0
-        save_dir = f"{SAVE_DIR}/run_{iter_}_{dt.datetime.strftime(dt.datetime.now(), '%Y%m%d_%H%M%S')}"
+        name = config.get("name")
+        if name is None:
+            name = config["dataset"]
+        save_dir = f"{SAVE_DIR}/run_{iter_}_{name}_{dt.datetime.strftime(dt.datetime.now(), '%Y%m%d_%H%M%S')}"
         os.mkdir(save_dir)
         LOGGER.info(f"Created save directory at {save_dir}")
         json.dump(config, open(f"{save_dir}/config.json", "w"))
@@ -62,7 +65,10 @@ if __name__ == '__main__':
     freq = config["freq"]
     verbose = config.get("verbose", 0)
     rebalance_dates = config.get("rebalance_dates", None)
-    start_test = config.get("start_test", None)
+    if rebalance_dates is not None:
+        start_test = rebalance_dates[0]
+    else:
+        start_test = config.get("start_test", None)
     end_date = config.get("end_date", None)
     random_stocks = config.get("random_stocks", False)
 
@@ -119,5 +125,9 @@ if __name__ == '__main__':
         pickle.dump(port_weights, open(f"{save_dir}/weights.p", "wb"))
 
     LOGGER.info("Evaluate performance")
-    evaluate(returns, port_weights, save_dir=save_dir, show=False)
+    if args.save:
+        evaluate(returns, port_weights, save_dir=save_dir)
+    else:
+        evaluate(returns, port_weights)
+
     LOGGER.info("Done")

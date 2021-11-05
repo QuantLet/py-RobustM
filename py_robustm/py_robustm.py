@@ -16,6 +16,21 @@ rp = importr('RiskPortfolios')
 nlshrink = importr('nlshrink')
 
 
+def load_global_bond_data(crypto_assets=['BTC', 'DASH', 'ETH', 'LTC', 'XRP']):
+    data = pd.read_csv('./data/alla_data_20211101.csv')
+    data = data.interpolate(method='polynomial', order=2)
+    data = data.set_index('Date')
+    data.index = pd.to_datetime(data.index)
+    data = data.dropna()
+    crypto_data = pd.read_csv('./data/clean_data_D_20150808_20211102.csv')
+    crypto_data = crypto_data.set_index('date')
+    crypto_data.index = pd.to_datetime(crypto_data.index)
+    crypto_data = crypto_data[crypto_assets]
+
+    data = pd.concat([data, crypto_data], 1).dropna()
+    data = data.astype(np.float32)
+    return data
+
 def load_data(dataset: str, random_stocks: Optional[bool] = False):
     """
     Load data
@@ -26,13 +41,18 @@ def load_data(dataset: str, random_stocks: Optional[bool] = False):
     assert dataset in AVAILABLE_DATASET, f"Dataset: '{dataset}' is not implemented. Available dataset are {AVAILABLE_DATASET}"
     if dataset == "SP100":
         prices = pd.read_csv("data/SP100_20100101_20201231.csv")
+        prices.set_index('date', inplace=True)
+        prices.index = pd.to_datetime(prices.index)
+        prices = prices.astype(np.float32)
     elif dataset == "Russell3000":
         prices = pd.read_csv("data/Russell3000prices_20000101_20201231.csv")
+        prices.set_index('date', inplace=True)
+        prices.index = pd.to_datetime(prices.index)
+        prices = prices.astype(np.float32)
+    elif dataset == "global_bond":
+        prices = load_global_bond_data()
     else:
         raise NotImplementedError(dataset)
-    prices.set_index('date', inplace=True)
-    prices.index = pd.to_datetime(prices.index)
-    prices = prices.astype(np.float32)
     assets = list(prices.columns)
     if dataset == 'Russell3000':
         prices = prices.loc["2010-01-01":, :]  # From RobustM repo
@@ -52,6 +72,8 @@ def load_data(dataset: str, random_stocks: Optional[bool] = False):
             random_stocks = np.random.choice(list(prices.columns), size=600, replace=False)
             assert len(np.unique(random_stocks)) == 600
             prices = prices[random_stocks]
+    elif dataset == 'global_bond':
+        pass
     else:
         raise NotImplementedError(dataset)
     assert np.sum(prices.isna().sum()) == 0
