@@ -3,7 +3,7 @@ import rpy2.robjects as robjects
 R = robjects.r
 R.rm(list=R.ls(all=True))
 
-from py_robustm.run import worker, load_data
+from py_robustm.run import worker, load_data, evaluate
 import pandas as pd
 import numpy as np
 from py_robustm.logger import LOGGER
@@ -14,6 +14,7 @@ from joblib import Parallel, delayed
 from py_robustm.constants import SAVE_DIR
 import datetime as dt
 import time
+
 robjects.numpy2ri.activate()
 
 if __name__ == '__main__':
@@ -47,10 +48,6 @@ if __name__ == '__main__':
         LOGGER.info(f"Created save directory at {save_dir}")
         json.dump(config, open(f"{save_dir}/config.json", "w"))
         LOGGER.debug(f"Config saved")
-
-    # r.graphics.off()
-    # r.source('RobustM_Packages.R')
-    # r.source('RobustM_Functions.R')
 
     ####Parameters for Portfolio Strategies####
     transi = 0.005  # transactional costs ratio
@@ -108,7 +105,7 @@ if __name__ == '__main__':
     else:
         raise ValueError(args.n_jobs)
     t2 = time.time()
-    LOGGER.info(f"Time to compute weights: {round((t2 - t1)/60, 2)} min.")
+    LOGGER.info(f"Time to compute weights: {round((t2 - t1) / 60, 2)} min.")
 
     port_weights = {strat: [r[strat] for r in port_weights] for strat in strats}
     for strat in port_weights:
@@ -121,4 +118,6 @@ if __name__ == '__main__':
         LOGGER.info(f"Saving results to {save_dir}")
         pickle.dump(port_weights, open(f"{save_dir}/weights.p", "wb"))
 
+    LOGGER.info("Evaluate performance")
+    evaluate(returns, port_weights, save_dir=save_dir, show=False)
     LOGGER.info("Done")

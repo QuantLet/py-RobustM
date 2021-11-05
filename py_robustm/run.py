@@ -8,6 +8,7 @@ import rpy2.robjects.numpy2ri
 import rpy2.rlike.container as rlc
 import py_robustm.markowitz as mrkw
 from py_robustm.constants import AVAILABLE_STRATS, AVAILABLE_DATASET
+import matplotlib.pyplot as plt
 
 robjects.numpy2ri.activate()  # For numpy to R object conversion
 R = robjects.r
@@ -34,7 +35,7 @@ def load_data(dataset: str, random_stocks: Optional[bool] = False):
     prices = prices.astype(np.float32)
     assets = list(prices.columns)
     if dataset == 'Russell3000':
-        prices = prices.loc["2010-01-01":,:] # From RobustM repo
+        prices = prices.loc["2010-01-01":, :]  # From RobustM repo
     if dataset == 'SP100':
         # There is not much NaNs in this dataset, we can just interpolate
         nans = np.array(assets)[(prices.isna().sum() != 0).values.tolist()]
@@ -54,7 +55,7 @@ def load_data(dataset: str, random_stocks: Optional[bool] = False):
     else:
         raise NotImplementedError(dataset)
     assert np.sum(prices.isna().sum()) == 0
-    returns = np.log(prices.pct_change(1) + 1).iloc[1:] # drop first row with nan
+    returns = np.log(prices.pct_change(1) + 1).iloc[1:]  # drop first row with nan
     assert np.sum(returns.isna().sum()) == 0
     prices = prices.loc[returns.index]
 
@@ -130,3 +131,31 @@ def worker(returns: pd.DataFrame, date: str, window: int, strats: List, verbose:
         weights[strat] = w
 
     return weights
+
+
+def evaluate(returns: pd.DataFrame, weights: Dict, save_dir: Optional[str] = None, show: bool = False):
+    """
+    Evaluation of strategies:
+        - compute portfolio return and equity
+        - graph of equity
+    :param returns:
+    :param weights:
+    :return:
+    """
+    strats = list(weights.keys())
+    start = weights[strats[0]].dropna().index[0]
+    port_ret = pd.DataFrame()
+    for strat in weights:
+        port_ret[strat] = (returns * weights[strat]).sum(1)
+    port_ret['EW'] = returns.mean(1)
+    port_ret = port_ret.loc[start:]
+    port_equity = 1 + port_ret.cumsum()
+
+    plt.figure(figsize=(20, 10))
+    for c in port_equity.columns:
+        plt.plot(port_equity[c], label=c)
+    plt.legend()
+    if save_dir:
+        plt.savefig(f"{save_dir}/cum_returns.png", bbox_inches="tight")
+    if show:
+        plt.show()
