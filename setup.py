@@ -16,7 +16,8 @@ setup(
         "scikit-learn==1.0.1",
         "scipy==1.7.1",
         "seaborn==0.11.2",
-        "statsmodels==0.13.0"
+        "statsmodels==0.13.0",
+        "joblib==1.1.0"
     ],
     setup_requires=["pytest-runner"],
     tests_require=["pytest"],
