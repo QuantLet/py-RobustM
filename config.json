@@ -6,7 +6,5 @@
     "GMV_nlin",
     "GMV_robust"
   ],
-  "window": 252,
-  "freq": "MS",
   "dataset": "SP100"
 }

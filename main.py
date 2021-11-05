@@ -61,8 +61,8 @@ if __name__ == '__main__':
 
     dataset = config["dataset"]
     strats = config["strats"]
-    window = config["window"]
-    freq = config["freq"]
+    window = config.get("window", 252)
+    freq = config.get("freq", "MS")
     verbose = config.get("verbose", 0)
     rebalance_dates = config.get("rebalance_dates", None)
     if rebalance_dates is not None:
