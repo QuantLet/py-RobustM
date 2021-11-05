@@ -15,7 +15,11 @@ here: https://www.wiwi.hu-berlin.de/de/forschung/irtg/results/discussion-papers/
 - Install the package in your environment with: `pip install .`
 
 ## Run
+### Data
 
+Please contact me to get access to the data. Put the csv files in a `data` folder at the root.
+
+### Configuration
 First fill the `config.json` file, you can specify:
 
 - `dataset` (str): "SP100" to reproduce RobustM on SP100 or "global_bond_dl_portfolio" to reproduce EmbeddingPortfolio
@@ -29,6 +33,7 @@ First fill the `config.json` file, you can specify:
 - `end_date` (Optional[str]): If specificied, use this for the last testing date
 - `name` (Optional[str]): Name of run to save results, `None` by default
 
+### Run
 Then just run `main.py` with `python main.py`. You can add command line argument specified in main.py:
 
 - `--save`: to save the results
