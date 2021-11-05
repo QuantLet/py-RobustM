@@ -5,7 +5,7 @@ main script in python.
 
 ## Installation
 
-- Refer to `setup.py`. You need python3.7. It will probably work with python3.8 also.
+- Refer to `setup.py`. This version has been tested with R==4.0.2 and python==3.7.11. It will probably work with python3.8 also.
 - First, you need to create a virtual environment, for example with conda: `conda create -n robustm python=3.7`
 - Then activate it with `conda activate robustm`
 - Install the package in your environment with: `pip install .`
