@@ -1,10 +1,9 @@
 import logging
 
 
-def get_logger(name_logger):
+def get_logger(name_logger, level=logging.INFO):
     logger_to_ret = logging.getLogger(name_logger)
-
-    logger_to_ret.setLevel(logging.DEBUG)
+    logger_to_ret.setLevel(level)
 
     stdout_logger = logging.StreamHandler()
     stdout_logger.setFormatter(
@@ -19,4 +18,4 @@ def get_logger(name_logger):
     return logger_to_ret
 
 
-LOGGER = get_logger("py-RobustM-Logger")
+LOGGER = get_logger("py-RobustM-Logger", level=logging.INFO)

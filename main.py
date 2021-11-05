@@ -33,12 +33,19 @@ if __name__ == '__main__':
                         action="store_true",
                         help="Save the result")
     args = parser.parse_args()
+    config = json.load(open('config.json'))
 
     if args.save:
-        iter = len(os.listdir(SAVE_DIR))
-        save_dir = f"{SAVE_DIR}/run_{iter}_{dt.datetime.strftime(dt.datetime.now(), '%Y%m%d_%H%M%S')}"
-        os.makedirs(save_dir)
+        if os.path.exists(SAVE_DIR):
+            iter_ = len(os.listdir(SAVE_DIR))
+        else:
+            os.mkdir(SAVE_DIR)
+            iter_ = 0
+        save_dir = f"{SAVE_DIR}/run_{iter_}_{dt.datetime.strftime(dt.datetime.now(), '%Y%m%d_%H%M%S')}"
+        os.mkdir(save_dir)
         LOGGER.info(f"Created save directory at {save_dir}")
+        json.dump(config, open(f"{save_dir}/config.json", "w"))
+        LOGGER.debug(f"Config saved")
 
     # r.graphics.off()
     # r.source('RobustM_Packages.R')
@@ -51,7 +58,6 @@ if __name__ == '__main__':
     # hel = ret;
     # hel[] = 0
 
-    config = json.load(open('config.json'))
     strats = config["strats"]
     window = config["window"]
     freq = config["freq"]
@@ -62,7 +68,7 @@ if __name__ == '__main__':
 
     # Load data
     prices = pd.read_csv("SP100_20100101_20201231.csv", sep=";")
-    prices.set_index('date', 1, inplace=True)
+    prices.set_index('date', inplace=True)
     prices.index = pd.to_datetime(prices.index)
     prices = prices.astype(np.float32)
     assets = list(prices.columns)
@@ -117,6 +123,6 @@ if __name__ == '__main__':
 
     if args.save:
         LOGGER.info(f"Saving results to {save_dir}")
-        pickle.dump(open(f"{save_dir}/weights.p", "wb"))
+        pickle.dump(port_weights, open(f"{save_dir}/weights.p", "wb"))
 
     LOGGER.info("Done")
