@@ -4,7 +4,7 @@ import numpy as np
 from typing import Dict
 import rpy2.robjects.numpy2ri
 import rpy2.rlike.container as rlc
-import markowitz as mrkw
+import py_robustm.markowitz as mrkw
 from config import AVAILABLE_STRATS
 
 robjects.numpy2ri.activate()  # For numpy to R object conversion
