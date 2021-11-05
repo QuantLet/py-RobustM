@@ -3,11 +3,11 @@ import rpy2.robjects as robjects
 import numpy as np
 import pandas as pd
 from py_robustm.logger import LOGGER
-from typing import Dict, List
+from typing import Dict, List, Optional
 import rpy2.robjects.numpy2ri
 import rpy2.rlike.container as rlc
 import py_robustm.markowitz as mrkw
-from py_robustm.constants import AVAILABLE_STRATS
+from py_robustm.constants import AVAILABLE_STRATS, AVAILABLE_DATASET
 
 robjects.numpy2ri.activate()  # For numpy to R object conversion
 R = robjects.r
@@ -15,35 +15,51 @@ rp = importr('RiskPortfolios')
 nlshrink = importr('nlshrink')
 
 
-def load_data(dataset: str):
+def load_data(dataset: str, random_stocks: Optional[bool] = False):
     """
     Load data
     :param dataset: name of dataset
+    :param random_stocks: Select 600 random stocks for Russell3000 dataset
     :return:
     """
+    assert dataset in AVAILABLE_DATASET, f"Dataset: '{dataset}' is not implemented. Available dataset are {AVAILABLE_DATASET}"
     if dataset == "SP100":
-        prices = pd.read_csv("data/SP100_20100101_20201231.csv", sep=";")
-        prices.set_index('date', inplace=True)
+        prices = pd.read_csv("data/SP100_20100101_20201231.csv")
     elif dataset == "Russell3000":
         prices = pd.read_csv("data/Russell3000prices_20000101_20201231.csv")
-        prices.set_index('date', inplace=True)
     else:
         raise NotImplementedError(dataset)
+    prices.set_index('date', inplace=True)
     prices.index = pd.to_datetime(prices.index)
     prices = prices.astype(np.float32)
-    LOGGER.info(f"\n{prices.head()}")
-    LOGGER.info(f"Data shape: {prices.shape}")
     assets = list(prices.columns)
-    nans = np.array(assets)[(prices.isna().sum() != 0).values.tolist()]
-    if len(nans) > 0:  # Fill nans
-        LOGGER.info(f"Assets with NaNs: {nans}")
-        LOGGER.info("Fill nans by interpolation")
-        prices = prices.interpolate(method='polynomial', order=2)
-    assert len(np.array(assets)[(prices.isna().sum() != 0).values.tolist()]) == 0
-    returns = np.log(prices.pct_change(1).dropna() + 1)
+    if dataset == 'Russell3000':
+        prices = prices.loc["2010-01-01":,:] # From RobustM repo
+    if dataset == 'SP100':
+        # There is not much NaNs in this dataset, we can just interpolate
+        nans = np.array(assets)[(prices.isna().sum() != 0).values.tolist()]
+        if len(nans) > 0:  # Fill nans
+            LOGGER.info(f"Assets with NaNs: {nans}")
+            print(prices[nans].isna().sum() / len(prices) * 100)
+            LOGGER.info("Fill nans by interpolation")
+            prices = prices.interpolate(method='polynomial', order=2)
+    elif dataset == 'Russell3000':
+        raise NotImplementedError()
+        prices = prices.dropna()
+        if random_stocks:
+            LOGGER.info(f"Sampling 600 random stocks from Russell3000")
+            random_stocks = np.random.choice(list(prices.columns), size=600, replace=False)
+            assert len(np.unique(random_stocks)) == 600
+            prices = prices[random_stocks]
+    else:
+        raise NotImplementedError(dataset)
+    assert np.sum(prices.isna().sum()) == 0
+    returns = np.log(prices.pct_change(1) + 1).iloc[1:] # drop first row with nan
     assert np.sum(returns.isna().sum()) == 0
     prices = prices.loc[returns.index]
 
+    LOGGER.info(f"\n{prices.head()}")
+    LOGGER.info(f"Data shape: {prices.shape}")
     return prices, returns
 
 
