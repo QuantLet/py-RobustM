@@ -5,7 +5,7 @@ from typing import Dict
 import rpy2.robjects.numpy2ri
 import rpy2.rlike.container as rlc
 import py_robustm.markowitz as mrkw
-from config import AVAILABLE_STRATS
+from py_robustm.constants import AVAILABLE_STRATS
 
 robjects.numpy2ri.activate()  # For numpy to R object conversion
 R = robjects.r
