@@ -67,22 +67,25 @@ if __name__ == '__main__':
     rebalance_dates = config.get("rebalance_dates", None)
     start_test = config.get("start_test", None)
     end_date = config.get("end_date", None)
+    random_stocks = config.get("random_stocks", False)
 
     # Load data
     LOGGER.info(f"Loading dataset: {dataset}")
-    prices, returns = load_data(dataset)
+    prices, returns = load_data(dataset, random_stocks=random_stocks)
     assets = list(prices.columns)
     dates = list(returns.index)
+
+    if end_date is None:
+        end_date = dates[-1]
+        LOGGER.info(f"End test is not specified by user, ending test at final date {end_date}")
 
     if start_test is None:
         start_test = dates[window]
         LOGGER.info(f"Start test is not specified by user, starting test at {start_test}")
     else:
+        assert pd.to_datetime(start_test) < end_date, f"start_test: {start_test} and end_date is: {end_date}"
         assert len(returns.loc[:start_test].iloc[
                    :-1]) >= window, f"First period is to small for given window {window} and start_test {start_test}"
-    if end_date is None:
-        end_date = dates[-1]
-        LOGGER.info(f"End test is not specified by user, ending test at final date {end_date}")
 
     test_dates = np.array(dates)[
         [(d >= pd.to_datetime(start_test)) and (d <= pd.to_datetime(end_date)) for d in dates]].tolist()
