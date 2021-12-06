@@ -31,6 +31,16 @@ def load_global_bond_data(crypto_assets=['BTC', 'DASH', 'ETH', 'LTC', 'XRP']):
     data = data.astype(np.float32)
     return data
 
+
+def load_multiasset_traditional():
+    data = pd.read_csv('data/bloomberg_comb_update_2021.csv', index_col=0)
+    data.index = pd.to_datetime(data.index)
+    data = data.interpolate(method='polynomial', order=2)
+    data = data.astype(np.float32)
+
+    return data
+
+
 def load_data(dataset: str, random_stocks: Optional[bool] = False):
     """
     Load data
@@ -51,6 +61,8 @@ def load_data(dataset: str, random_stocks: Optional[bool] = False):
         prices = prices.astype(np.float32)
     elif dataset == "global_bond":
         prices = load_global_bond_data()
+    elif dataset == "multiasset_traditional":
+        prices = load_multiasset_traditional()
     else:
         raise NotImplementedError(dataset)
     assets = list(prices.columns)
@@ -73,6 +85,8 @@ def load_data(dataset: str, random_stocks: Optional[bool] = False):
             assert len(np.unique(random_stocks)) == 600
             prices = prices[random_stocks]
     elif dataset == 'global_bond':
+        pass
+    elif dataset == 'multiasset_traditional':
         pass
     else:
         raise NotImplementedError(dataset)
