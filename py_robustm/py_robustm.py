@@ -134,6 +134,13 @@ def allocate(returns: np.ndarray, strat: str, **kwargs: Dict):
         gammas = mrkw.recommended_gamma(Sigma)
         block_n = kwargs.get("block_n", 5)
         w1 = mrkw.robust_qp(returns, block_n, gamma=gammas, lmbd=0)
+
+    elif strat == "MeanVar_long":
+        Sigma = rp.covEstimation(returns)
+        mu = rp.meanEstimation(returns)
+        control = rlc.TaggedList(["mv", "lo"], tags=('type', 'constraint'))  # Named list in R
+        w1 = rp.optimalPortfolio(Sigma=Sigma, mu=mu, control=control)
+
     else:
         raise NotImplementedError(f"Strat: '{strat}' is not implemented")
 
