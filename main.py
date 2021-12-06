@@ -80,7 +80,11 @@ if __name__ == '__main__':
 
     if end_date is None:
         end_date = dates[-1]
-        LOGGER.info(f"End test is not specified by user, ending test at final date {end_date}")
+        LOGGER.info(f"End test is not specified, ending test at final date {end_date}")
+    else:
+        LOGGER.info(f"End test is specified by user, ending test at {end_date}")
+        assert isinstance(end_date, str)
+        end_date = pd.to_datetime(end_date)
 
     if start_test is None:
         start_test = dates[window]
@@ -123,6 +127,8 @@ if __name__ == '__main__':
     if args.save:
         LOGGER.info(f"Saving results to {save_dir}")
         pickle.dump(port_weights, open(f"{save_dir}/weights.p", "wb"))
+        for strat in port_weights:
+            port_weights[strat].to_csv(f"{save_dir}/weights_{strat}.csv")
 
     LOGGER.info("Evaluate performance")
     if args.save:

@@ -5,7 +5,8 @@
     "GMV_long",
     "GMV_lin",
     "GMV_nlin",
-    "GMV_robust"
+    "GMV_robust",
+    "MeanVar_long"
   ],
   "window": 252,
   "verbose": 0,
