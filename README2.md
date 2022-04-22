@@ -4,7 +4,8 @@ Please refer to [RobustM](https://github.com/QuantLet/RobustM) original library.
 main script in python.
 
 When citing this project, please cite the original paper
-from [Härdle et al (2021)](https://www.wiwi.hu-berlin.de/de/forschung/irtg/results/discussion-papers/discussion-papers-2017-1/irtg1792dp2021-018.pdf).
+from [Härdle et al (2021)](https://www.wiwi.hu-berlin.de/de/forschung/irtg/results/discussion-papers/discussion-papers-2017-1/irtg1792dp2021-018.pdf)
+and [Spilak, Härdle; (2022)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4076843).
 
 ## Installation
 
