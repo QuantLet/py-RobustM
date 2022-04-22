@@ -16,32 +16,36 @@ rp = importr('RiskPortfolios')
 nlshrink = importr('nlshrink')
 
 
-def load_global_bond_data(crypto_assets=['BTC', 'DASH', 'ETH', 'LTC', 'XRP']):
-    data = pd.read_csv('./data/alla_data_20211101.csv')
-    data = data.interpolate(method='polynomial', order=2)
-    data = data.set_index('Date')
+def load_dataset1():
+    data = pd.read_csv("data/dataset1.csv", index_col=0)
     data.index = pd.to_datetime(data.index)
-    data = data.dropna()
-    crypto_data = pd.read_csv('./data/clean_data_D_20150808_20211102.csv')
-    crypto_data = crypto_data.set_index('date')
-    crypto_data.index = pd.to_datetime(crypto_data.index)
-    crypto_data = crypto_data[crypto_assets]
-
-    data = pd.concat([data, crypto_data], 1).dropna()
     data = data.astype(np.float32)
-    return data
+    return data, list(data.columns)
 
 
-def load_multiasset_traditional():
-    data = pd.read_csv('data/bloomberg_comb_update_2021.csv', index_col=0)
+def load_dataset2():
+    data = pd.read_csv('data/dataset2.csv', index_col=0)
     data.index = pd.to_datetime(data.index)
     data = data.interpolate(method='polynomial', order=2)
     data = data.astype(np.float32)
+    assets = list(data.columns)
 
-    return data
+    return data, assets
 
 
-def load_data(dataset: str, random_stocks: Optional[bool] = False):
+def load_data(dataset):
+    assert dataset in AVAILABLE_DATASET, f"Dataset: '{dataset}' is not implemented. Available dataset are {AVAILABLE_DATASET}"
+    if dataset == 'dataset1':
+        data, assets = load_dataset1()
+    elif dataset == 'dataset2':
+        data, assets = load_dataset2()
+    else:
+        raise NotImplementedError(f"dataset must be one of ['dataset1', 'dataset2']: {dataset}")
+
+    return data, assets
+
+
+def load_data(dataset: str):
     """
     Load data
     :param dataset: name of dataset
@@ -49,47 +53,13 @@ def load_data(dataset: str, random_stocks: Optional[bool] = False):
     :return:
     """
     assert dataset in AVAILABLE_DATASET, f"Dataset: '{dataset}' is not implemented. Available dataset are {AVAILABLE_DATASET}"
-    if dataset == "SP100":
-        prices = pd.read_csv("data/SP100_20100101_20201231.csv")
-        prices.set_index('date', inplace=True)
-        prices.index = pd.to_datetime(prices.index)
-        prices = prices.astype(np.float32)
-    elif dataset == "Russell3000":
-        prices = pd.read_csv("data/Russell3000prices_20000101_20201231.csv")
-        prices.set_index('date', inplace=True)
-        prices.index = pd.to_datetime(prices.index)
-        prices = prices.astype(np.float32)
-    elif dataset == "global_bond":
-        prices = load_global_bond_data()
-    elif dataset == "multiasset_traditional":
-        prices = load_multiasset_traditional()
+    if dataset == "dataset1":
+        prices, _ = load_dataset1()
+    elif dataset == "dataset2":
+        prices, _ = load_dataset2()
     else:
         raise NotImplementedError(dataset)
-    assets = list(prices.columns)
-    if dataset == 'Russell3000':
-        prices = prices.loc["2010-01-01":, :]  # From RobustM repo
-    if dataset == 'SP100':
-        # There is not much NaNs in this dataset, we can just interpolate
-        nans = np.array(assets)[(prices.isna().sum() != 0).values.tolist()]
-        if len(nans) > 0:  # Fill nans
-            LOGGER.info(f"Assets with NaNs: {nans}")
-            print(prices[nans].isna().sum() / len(prices) * 100)
-            LOGGER.info("Fill nans by interpolation")
-            prices = prices.interpolate(method='polynomial', order=2)
-    elif dataset == 'Russell3000':
-        raise NotImplementedError()
-        prices = prices.dropna()
-        if random_stocks:
-            LOGGER.info(f"Sampling 600 random stocks from Russell3000")
-            random_stocks = np.random.choice(list(prices.columns), size=600, replace=False)
-            assert len(np.unique(random_stocks)) == 600
-            prices = prices[random_stocks]
-    elif dataset == 'global_bond':
-        pass
-    elif dataset == 'multiasset_traditional':
-        pass
-    else:
-        raise NotImplementedError(dataset)
+
     assert np.sum(prices.isna().sum()) == 0
     returns = np.log(prices.pct_change(1) + 1).iloc[1:]  # drop first row with nan
     assert np.sum(returns.isna().sum()) == 0

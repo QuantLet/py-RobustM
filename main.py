@@ -70,11 +70,10 @@ if __name__ == '__main__':
     else:
         start_test = config.get("start_test", None)
     end_date = config.get("end_date", None)
-    random_stocks = config.get("random_stocks", False)
 
     # Load data
     LOGGER.info(f"Loading dataset: {dataset}")
-    prices, returns = load_data(dataset, random_stocks=random_stocks)
+    prices, returns = load_data(dataset)
     assets = list(prices.columns)
     dates = list(returns.index)
 

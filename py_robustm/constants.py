@@ -1,4 +1,4 @@
-AVAILABLE_DATASET = ["Russell3000", "SP100", "global_bond", "multiasset_traditional"]
+AVAILABLE_DATASET = ["dataset1", "dataset2"]
 AVAILABLE_STRATS = ["GMV", "GMV_long", "GMV_lin", "GMV_nlin", "GMV_robust", "MeanVar_long"]
 SAVE_DIR = './log'
 
