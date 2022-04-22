@@ -25,7 +25,7 @@ Please contact me to get access to the data. Put the csv files in a `data` folde
 
 First fill the `config.json` file, you can specify:
 
-- `dataset` (str): "dataset1" or "dataset2" to reproduce EmbeddingPortfolio
+- `dataset` (str): "dataset1" or "dataset2" to reproduce EmbeddingPortfolio ([Spilak, Härdle; (2022)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4076843))
 - `strats` (list): Strategy to evaluate, available strategies
   are `["GMV", "GMV_long", "GMV_lin", "GMV_nlin", "GMV_robust"]`
 - `window` (Optional[int]): default is 252 (one year), past window for parameters estimation
