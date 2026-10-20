@@ -9,7 +9,7 @@ Name of Quantlet: py-RobustM
 
 Published in: Does non-linear factorization of financial returns help build better and stabler portfolios?
 
-Description: Please refer to the original library RobustM at https://github.com/QuantLet/RobustM. This repository is just a version with
+Description: Please refer to the original library RobustM at https://github.com/QuantLet/RobustM. This repository is just a version with main script in python. Also read the README2.md file to see how to use the code.
 
 Keywords: efficient frontier, portfolio, Markowitz, global minimum variance, mean-variance
 
